@@ -102,7 +102,7 @@ void ConnectAuthorization(HttpService* router) {
 
             resp["key"] = key;
             //resp["role"] = (*myServer).GetUser("admin").role;
-            resp["role"] = (*myServer).GetUser(UserData["login"].get<std::string>()).role;
+            resp["role"] = std::to_string(((*myServer).GetUser(UserData["login"].get<std::string>()).role));
             //printf("%d", (int)(*myServer).GetUser(UserData["login"].get<std::string>()).role);
             ctx->setStatus(http_status_enum("200"));
         }
