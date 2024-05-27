@@ -30,15 +30,15 @@ void ConnectGetAllUsers(HttpService* router) {
         hv::Json resp;
         try
         {
-            // Получение данных пользователя из тела запроса
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             hv::Json KeyData = hv::Json::parse(ctx->body());
-            // Проверка наличия необходимых полей в данных пользователя
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (!KeyData.contains("key")) {
                 throw std::invalid_argument("Missing user");
             }
             if (myServer->CheckUserAccess(KeyData["key"].get<std::string>(), "")) {
             //if (true){
-                //Пробегаемся по всем пользователям и добавляем их в ответ
+                //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
                 for (int i = 0; i < localUsers->size(); i++) {
                     resp["users"][i]["login"] = (*localUsers)[i].login;
                     resp["users"][i]["password"] = (*localUsers)[i].password;
@@ -62,9 +62,9 @@ void ConnectRegistration(HttpService* router) {
         hv::Json resp;
         try
         {
-            // Получение данных пользователя из тела запроса
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             hv::Json UserData = hv::Json::parse(ctx->body());
-            // Проверка наличия необходимых полей в данных пользователя
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (!UserData.contains("login") || !UserData.contains("password") || !UserData.contains("role")) {
                 throw std::invalid_argument("EmptyData");
             }
@@ -88,9 +88,9 @@ void ConnectAuthorization(HttpService* router) {
         hv::Json resp;
         try
         {
-            // Получение данных пользователя из тела запроса
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             hv::Json UserData = hv::Json::parse(ctx->body());
-            // Проверка наличия необходимых полей в данных пользователя
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (!UserData.contains("login") || !UserData.contains("password")) {
                 throw std::invalid_argument("EmptyData");
             }
@@ -120,9 +120,9 @@ void ConnectChangeUserData(HttpService* router) {
         hv::Json resp;
         try
         {
-            // Получение данных пользователя из тела запроса
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             hv::Json UserData = hv::Json::parse(ctx->body());
-            // Проверка наличия необходимых полей в данных пользователя
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (!UserData.contains("new_login") || !UserData.contains("new_password")
                 || !UserData.contains("old_login") || !UserData.contains("key")) {
                 throw std::invalid_argument("EmptyData");
@@ -149,9 +149,9 @@ void ConnectDeleteUserData(HttpService* router) {
         hv::Json resp;
         try
         {
-            // Получение данных пользователя из тела запроса
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             hv::Json UserData = hv::Json::parse(ctx->body());
-            // Проверка наличия необходимых полей в данных пользователя
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (!UserData.contains("login") || !UserData.contains("key")){
                 throw std::invalid_argument("EmptyData");
             }
@@ -247,7 +247,6 @@ void MyServer::DeleteUser(std::string login){
             auto it = autUsers.find(users[i]);
             if (it != autUsers.end()) {
                 autUsers.erase(it);
-                std::cout << "Element removed" << std::endl;
             }
 			users.erase(users.begin() + i);
 		}
