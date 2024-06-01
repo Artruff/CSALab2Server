@@ -8,7 +8,7 @@ include_directories(hv)
 # Исполняемый файл для CSALab2
 add_executable(CSALab2
     src/CSALab2.cpp
-    src/MyClient.cpp
+    src/MyServer.cpp
 )
 
 target_link_libraries(CSALab2 ${CMAKE_SOURCE_DIR}/lib/libhv.a)
