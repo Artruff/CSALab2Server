@@ -25,6 +25,7 @@ install(TARGETS CSALab2
 # Исполняемый файл для Test
 add_executable(Test
     src/Test.cpp
+    src/MyServer.cpp
 )
 
 target_link_libraries(Test ${CMAKE_SOURCE_DIR}/lib/libCatch2.a ${CMAKE_SOURCE_DIR}/lib/libhv.a)
