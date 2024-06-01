@@ -1,25 +1,33 @@
+# Makefile to build the project
+
 CC = g++
-CFLAGS = -std=c++11 -Wall
-ODIR = ./usr/bin/
-TARGET = $(ODIR)server
-SRCS = CSALab2.cpp MyServer.cpp
-OPTS_FOR_TEST=-lcheck -lpthread -lrt -lsubunit -lm
-HEADERS_DIR = hv
-HEADERS = $(wildcard $(HEADERS_DIR)/*.h)
-OBJS = $(SRCS:.cpp=.o)
+CFLAGS = -Wall -I hv
+LDFLAGS = -L lib -lCatch2
+LIBS = -lhv
+OUTDIR = build/
+TESTDIR = test/
+PACKAGEDIR = package/usr/bin/
 
-all: $(TARGET)
+all: clean CSALab2 Test
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+CSALab2: CSALab2.o MyServer.o
+	mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(OUTDIR)CSALab2 CSALab2.o MyServer.o $(LIBS)
+	cp $(OUTDIR)CSALab2 $(PACKAGEDIR)CSALab2
 
-%.o: %.cpp $(HEADERS)
-	$(CC) $(CFLAGS) -c $< -o $@
+CSALab2.o: src/CSALab2.cpp
+	$(CC) $(CFLAGS) -c src/CSALab2.cpp
 
-tets:
-	$(CC) $(CFLAGS) Test.cpp MyServer.cpp -o ./test $(OPTS_FOR_TEST)
+MyServer.o: src/MyServer.cpp
+	$(CC) $(CFLAGS) -c src/MyServer.cpp
+
+Test: Test.o MyServer.o
+	mkdir -p $(TESTDIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TESTDIR)Test Test.o MyServer.o $(LIBS)
+
+Test.o: src/Test.cpp
+	$(CC) $(CFLAGS) -c src/Test.cpp
 
 clean:
-	rm -f $(OBJS) $(TARGET)
-
-.PHONY: all clean
+	rm -f *.o *.deb $(OUTDIR)CSALab2 $(PACKAGEDIR)CSALab2 $(TESTDIR)Test
+	rm -rf $(OUTDIR) $(TESTDIR)

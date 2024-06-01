@@ -2,4 +2,4 @@ Package: Server
 Version: 1.0
 Architecture: Windows-amd64
 Maintainer: Arthur Dima
-Description: Server
+Description: server
