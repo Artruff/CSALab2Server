@@ -15,20 +15,17 @@ typedef struct UserStruct
 {
 	std::string login;
 	std::string password;
+	int score;
 	Roles role;
 
 	bool operator==(const UserStruct& other) const
 	{
-		return login == other.login && password == other.password && role == other.role;
+		return login == other.login;
 	}
 
 	bool operator<(const UserStruct& other) const
 	{
-		if (login != other.login)
-			return login < other.login;
-		if (password != other.password)
-			return password < other.password;
-		return role < other.role;
+		return login < other.login;
 	}
 } User;
 
@@ -42,6 +39,7 @@ public:
 	void DeleteUser(std::string login);
 	User GetUser(std::string login);
 	void ChangeUser(std::string old_login, std::string new_login, std::string new_password);
+	void ChangeHiScore(std::string login, int score);
 	bool CheckUserAccess(std::string key, std::string login);
 	char* GetHost();
 private:

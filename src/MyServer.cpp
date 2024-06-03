@@ -7,11 +7,8 @@ using namespace hv;
 typedef UserStruct User;
 std::string generateUniqueKey() {
     std::stringstream key;
-    // Append current timestamp
     std::time_t currentTime = std::time(nullptr);
     key << currentTime;
-
-    // Append random number
     key << "_" << std::rand();
 
     return key.str();
@@ -25,28 +22,23 @@ HttpServer server;
 HttpService router;
 char* host;
 
-void ConnectGetAllUsers(HttpService* router) {
-    (*router).POST("/users", [](const HttpContextPtr& ctx) {
+void ConnectGetScores(HttpService* router) {
+    (*router).POST("/table_score", [](const HttpContextPtr& ctx) {
         hv::Json resp;
         try
         {
-            // ��������� ������ ������������ �� ���� �������
             hv::Json KeyData = hv::Json::parse(ctx->body());
-            // �������� ������� ����������� ����� � ������ ������������
             if (!KeyData.contains("key")) {
                 throw std::invalid_argument("Missing user");
             }
-            if (myServer->CheckUserAccess(KeyData["key"].get<std::string>(), "")) {
-            //if (true){
-                //����������� �� ���� ������������� � ��������� �� � �����
-                for (int i = 0; i < localUsers->size(); i++) {
-                    resp["users"][i]["login"] = (*localUsers)[i].login;
+            for (int i = 0; i < localUsers->size(); i++) {
+                resp["users"][i]["login"] = (*localUsers)[i].login;
+                if (myServer->CheckUserAccess(KeyData["key"].get<std::string>(), ""))
                     resp["users"][i]["password"] = (*localUsers)[i].password;
-                    resp["users"][i]["role"] = (*localUsers)[i].role;
-                }
-
-                ctx->setStatus(http_status_enum("200"));
+                resp["users"][i]["score"] = (*localUsers)[i].score;
+                resp["users"][i]["role"] = (*localUsers)[i].role;
             }
+            ctx->setStatus(http_status_enum("200"));
         }
         catch (const std::exception& e)
         {
@@ -62,9 +54,7 @@ void ConnectRegistration(HttpService* router) {
         hv::Json resp;
         try
         {
-            // ��������� ������ ������������ �� ���� �������
             hv::Json UserData = hv::Json::parse(ctx->body());
-            // �������� ������� ����������� ����� � ������ ������������
             if (!UserData.contains("login") || !UserData.contains("password") || !UserData.contains("role")) {
                 throw std::invalid_argument("EmptyData");
             }
@@ -88,22 +78,17 @@ void ConnectAuthorization(HttpService* router) {
         hv::Json resp;
         try
         {
-            // ��������� ������ ������������ �� ���� �������
             hv::Json UserData = hv::Json::parse(ctx->body());
-            // �������� ������� ����������� ����� � ������ ������������
             if (!UserData.contains("login") || !UserData.contains("password")) {
                 throw std::invalid_argument("EmptyData");
             }
 
             std::string key = (*myServer).Authorization(UserData["login"].get<std::string>(), UserData["password"].get<std::string>());
-            //std::string key = (*myServer).Authorization("admin", "123");
             if(key.empty())
                 throw std::invalid_argument("Wrong login or password");
 
             resp["key"] = key;
-            //resp["role"] = (*myServer).GetUser("admin").role;
             resp["role"] = std::to_string(((*myServer).GetUser(UserData["login"].get<std::string>()).role));
-            //printf("%d", (int)(*myServer).GetUser(UserData["login"].get<std::string>()).role);
             ctx->setStatus(http_status_enum("200"));
         }
         catch (const std::exception& e)
@@ -120,9 +105,7 @@ void ConnectChangeUserData(HttpService* router) {
         hv::Json resp;
         try
         {
-            // ��������� ������ ������������ �� ���� �������
             hv::Json UserData = hv::Json::parse(ctx->body());
-            // �������� ������� ����������� ����� � ������ ������������
             if (!UserData.contains("new_login") || !UserData.contains("new_password")
                 || !UserData.contains("old_login") || !UserData.contains("key")) {
                 throw std::invalid_argument("EmptyData");
@@ -149,9 +132,7 @@ void ConnectDeleteUserData(HttpService* router) {
         hv::Json resp;
         try
         {
-            // ��������� ������ ������������ �� ���� �������
             hv::Json UserData = hv::Json::parse(ctx->body());
-            // �������� ������� ����������� ����� � ������ ������������
             if (!UserData.contains("login") || !UserData.contains("key")){
                 throw std::invalid_argument("EmptyData");
             }
@@ -160,6 +141,31 @@ void ConnectDeleteUserData(HttpService* router) {
                 (*myServer).DeleteUser(UserData["login"].get<std::string>());
             else
                 throw std::invalid_argument("Wrong login or dont have access");
+            ctx->setStatus(http_status_enum("200"));
+        }
+        catch (const std::exception& e)
+        {
+            resp["status"] = "error";
+            resp["message"] = e.what();
+            ctx->setStatus(http_status_enum("400"));
+        }
+        return ctx->send(resp.dump(2));
+        });
+}
+void ConnectChangeHiScoreData(HttpService* router) {
+    (*router).POST("/score", [](const HttpContextPtr& ctx) {
+        hv::Json resp;
+        try
+        {
+            hv::Json UserData = hv::Json::parse(ctx->body());
+            if (!UserData.contains("login") || !UserData.contains("score") || !UserData.contains("key")) {
+                throw std::invalid_argument("EmptyData");
+            }
+
+            if ((*myServer).CheckUserAccess(UserData["key"].get<std::string>(), UserData["login"].get<std::string>()))
+                (*myServer).ChangeHiScore(UserData["login"].get<std::string>(), UserData["score"].get<int>());
+            else
+                throw std::invalid_argument("Wrong login");
             ctx->setStatus(http_status_enum("200"));
         }
         catch (const std::exception& e)
@@ -190,11 +196,12 @@ MyServer::MyServer(int argc, char** argv)
 
     AddUser("admin", "123", Roles::AdminRole);
 
-    ConnectGetAllUsers(&router);
+    ConnectGetScores(&router);
     ConnectRegistration(&router);
     ConnectAuthorization(&router);
     ConnectDeleteUserData(&router);
     ConnectChangeUserData(&router);/**/
+    ConnectChangeHiScoreData(&router);
 
     router.AllowCORS();
 
@@ -227,6 +234,7 @@ bool MyServer::AddUser(std::string login, std::string password, Roles role) {
     user.login = login;
     user.password = password;
     user.role = role;
+    user.score = 0;
     users.push_back(user);
     return true;
 }
@@ -265,6 +273,16 @@ void MyServer::ChangeUser(std::string old_login, std::string new_login, std::str
 		if (users[i].login == old_login) {
 			users[i].login = new_login;
 			users[i].password = new_password;
+            return;
+		}
+	}
+}
+void MyServer::ChangeHiScore(std::string login, int score) {
+	for (int i = 0; i < users.size(); i++) {
+		if (users[i].login == login) {
+            if(users[i].score < score)
+			    users[i].score = score;
+            return;
 		}
 	}
 }
