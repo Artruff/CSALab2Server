@@ -3,7 +3,7 @@
 CC = g++
 CFLAGS = -Wall -I hv
 LDFLAGS = -L lib -lCatch2
-LIBS = -lhv
+LIBS = -lhv -lsqlite3
 OUTDIR = build/
 TESTDIR = test/
 PACKAGEDIR = package/usr/bin/
@@ -12,6 +12,7 @@ all: clean CSALab2 Test
 
 CSALab2: CSALab2.o MyServer.o
 	mkdir -p $(OUTDIR)
+	mkdir -p $(PACKAGEDIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(OUTDIR)CSALab2 CSALab2.o MyServer.o $(LIBS)
 	cp $(OUTDIR)CSALab2 $(PACKAGEDIR)CSALab2
 

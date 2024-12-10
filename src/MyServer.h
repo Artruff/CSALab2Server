@@ -1,7 +1,8 @@
 #include <string>
 #include "../hv/HttpServer.h"
-#include "../hv/hthread.h"    // import hv_gettid
-#include "../hv/hasync.h"     // import hv::async
+#include "../hv/hthread.h" // import hv_gettid
+#include "../hv/hasync.h"  // import hv::async
+#include <sqlite3.h>
 
 #define TEST_HTTPS 0
 
@@ -17,12 +18,12 @@ typedef struct UserStruct
 	std::string password;
 	Roles role;
 
-	bool operator==(const UserStruct& other) const
+	bool operator==(const UserStruct &other) const
 	{
 		return login == other.login && password == other.password && role == other.role;
 	}
 
-	bool operator<(const UserStruct& other) const
+	bool operator<(const UserStruct &other) const
 	{
 		if (login != other.login)
 			return login < other.login;
@@ -35,7 +36,7 @@ typedef struct UserStruct
 class MyServer
 {
 public:
-	MyServer(int argc, char** argv);
+	MyServer(int argc, char **argv);
 	~MyServer();
 	bool AddUser(std::string login, std::string password, Roles role);
 	std::string Authorization(std::string login, std::string password);
@@ -43,8 +44,12 @@ public:
 	User GetUser(std::string login);
 	void ChangeUser(std::string old_login, std::string new_login, std::string new_password);
 	bool CheckUserAccess(std::string key, std::string login);
-	char* GetHost();
+	char *GetHost();
+
 private:
+	sqlite3 *db;
+	void readData();
+	void writeData();
 	std::map<User, std::string> autUsers;
 	std::vector<User> users;
 };
