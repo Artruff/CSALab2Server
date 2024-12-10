@@ -26,6 +26,77 @@ HttpServer server;
 HttpService router;
 char *host;
 
+bool fileExists(const std::string &filename)
+{
+    struct stat buffer;
+    return (stat(filename.c_str(), &buffer) == 0);
+}
+
+void createDatabaseIfNotExists()
+{
+    const char *dbFilename = "users.db";
+
+    // Проверяем, существует ли файл базы данных
+    if (fileExists(dbFilename))
+    {
+        std::cout << "Database file already exists. No action taken." << std::endl;
+        return; // Если файл существует, ничего не делаем
+    }
+
+    // Создаем соединение с базой данных
+    sqlite3 *db;
+    char *errMessage = nullptr;
+
+    int rc = sqlite3_open(dbFilename, &db);
+    if (rc)
+    {
+        std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
+        return;
+    }
+    std::cout << "Opened database successfully." << std::endl;
+
+    // SQL для создания таблицы
+    const char *sqlCreateTable = R"(
+        CREATE TABLE users (
+            login VARCHAR(50) NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            role INT NOT NULL
+        );
+    )";
+
+    // Создаем таблицу
+    rc = sqlite3_exec(db, sqlCreateTable, 0, 0, &errMessage);
+    if (rc != SQLITE_OK)
+    {
+        std::cerr << "SQL error: " << errMessage << std::endl;
+        sqlite3_free(errMessage);
+    }
+    else
+    {
+        std::cout << "Table created successfully." << std::endl;
+    }
+
+    // SQL для добавления пользователя admin
+    const char *sqlInsertAdmin = R"(
+        INSERT INTO users (login, password, role) VALUES ('admin', '1234', 1);
+    )";
+
+    // Добавляем администратора
+    rc = sqlite3_exec(db, sqlInsertAdmin, 0, 0, &errMessage);
+    if (rc != SQLITE_OK)
+    {
+        std::cerr << "SQL error: " << errMessage << std::endl;
+        sqlite3_free(errMessage);
+    }
+    else
+    {
+        std::cout << "User 'admin' added successfully." << std::endl;
+    }
+
+    // Закрываем соединение с базой данных
+    sqlite3_close(db);
+}
+
 void ConnectGetAllUsers(HttpService *router)
 {
     (*router).POST("/users", [](const HttpContextPtr &ctx)
@@ -239,6 +310,7 @@ MyServer::MyServer(int argc, char **argv)
     localAutUsers = &autUsers;
     localUsers = &users;
     int res;
+    createDatabaseIfNotExists();
     res = sqlite3_open("users.db", &db);
     if (res == SQLITE_OK)
         readData();

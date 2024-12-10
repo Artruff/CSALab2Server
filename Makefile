@@ -8,7 +8,7 @@ OUTDIR = build/
 TESTDIR = test/
 PACKAGEDIR = package/usr/bin/
 
-all: clean CSALab2 Test
+all: clean CSALab2
 
 CSALab2: CSALab2.o MyServer.o
 	mkdir -p $(OUTDIR)
