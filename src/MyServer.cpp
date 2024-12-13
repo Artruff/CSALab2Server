@@ -2,6 +2,9 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "../hv/hv.h"
+#include "../hv/requests.h"
+using json = nlohmann::json;
 using namespace hv;
 
 typedef UserStruct User;
@@ -95,6 +98,64 @@ void createDatabaseIfNotExists()
 
     // Закрываем соединение с базой данных
     sqlite3_close(db);
+}
+std::string GetServerTime()
+{
+    // Создание HTTP-запроса
+    auto response = requests::get("http://microservice:8081/time");
+
+    // Проверяем, успешно ли выполнен запрос
+    if (response != nullptr && response->status_code == 200)
+    {
+        try
+        {
+            // Парсим тело ответа как JSON
+            json response_data = json::parse(response->body);
+            // Извлекаем текущее время
+            if (response_data.contains("time"))
+            {
+                return response_data["time"].get<std::string>();
+            }
+            else
+            {
+                return "Error: 'time' key not found in response.";
+            }
+        }
+        catch (const std::exception &e)
+        {
+            return std::string("Error parsing JSON response: ") + e.what();
+        }
+    }
+    else
+    {
+        // Обработка ошибки соединения или неверного HTTP-статуса
+        return "Error: Unable to fetch time. HTTP status: " +
+               (response != nullptr ? std::to_string(response->status_code) : "unknown");
+    }
+}
+void ConnectGetTime(HttpService *router)
+{
+    (*router).GET("/time", [](const HttpContextPtr &ctx)
+                  {
+        hv::Json resp;
+        try
+        {
+            // Получаем текущее время
+            std::string currentTime = GetServerTime();
+
+            // Формируем ответ в формате JSON
+            resp["time"] = currentTime;
+
+            // Устанавливаем статус ответа
+            ctx->setStatus(http_status_enum("200"));
+        }
+        catch (const std::exception& e)
+        {
+            resp["status"] = "error";
+            resp["message"] = e.what();
+            ctx->setStatus(http_status_enum("500")); // Устанавливаем статус 500 для ошибок сервера
+        }
+        return ctx->send(resp.dump(2)); });
 }
 
 void ConnectGetAllUsers(HttpService *router)
@@ -325,7 +386,7 @@ MyServer::MyServer(int argc, char **argv)
     router.Static("/", "./html");
 
     myServer = this;
-
+    ConnectGetTime(&router);
     ConnectGetAllUsers(&router);
     ConnectRegistration(&router);
     ConnectAuthorization(&router);

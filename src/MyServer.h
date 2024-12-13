@@ -3,6 +3,9 @@
 #include "../hv/hthread.h" // import hv_gettid
 #include "../hv/hasync.h"  // import hv::async
 #include <sqlite3.h>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 
 #define TEST_HTTPS 0
 

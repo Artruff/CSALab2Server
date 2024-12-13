@@ -13,8 +13,11 @@ all: clean CSALab2
 CSALab2: CSALab2.o MyServer.o
 	mkdir -p $(OUTDIR)
 	mkdir -p $(PACKAGEDIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(OUTDIR)CSALab2 CSALab2.o MyServer.o $(LIBS)
-	cp $(OUTDIR)CSALab2 $(PACKAGEDIR)CSALab2
+	mkdir -p $(OUTDIR)server
+	mkdir -p $(OUTDIR)microservice
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(OUTDIR)microservice/Microservice ./src/Microservice.cpp $(LIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(OUTDIR)server/CSALab2 CSALab2.o MyServer.o $(LIBS)
+	cp $(OUTDIR)server/CSALab2 $(PACKAGEDIR)CSALab2
 
 CSALab2.o: src/CSALab2.cpp
 	$(CC) $(CFLAGS) -c src/CSALab2.cpp
@@ -30,5 +33,5 @@ Test.o: src/Test.cpp
 	$(CC) $(CFLAGS) -c src/Test.cpp
 
 clean:
-	rm -f *.o *.deb $(OUTDIR)CSALab2 $(PACKAGEDIR)CSALab2 $(TESTDIR)Test
-	rm -rf $(OUTDIR) $(TESTDIR)
+	rm -f *.o *.deb $(OUTDIR)server/CSALab2 $(OUTDIR)microservice/Microservice $(PACKAGEDIR)CSALab2 $(TESTDIR)Test
+	rm -rf $(TESTDIR)

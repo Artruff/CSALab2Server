@@ -1,0 +1,7 @@
+FROM nginx:latest
+
+# Копируем конфигурацию nginx в контейнер
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Указываем, что nginx будет слушать на порте 80
+EXPOSE 80
